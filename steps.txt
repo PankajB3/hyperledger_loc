@@ -17,3 +17,45 @@ configtxgen -profile FourOrgsLoCChannel -outputAnchorPeersUpdate ./channel-artif
 > Run e2e file
 export SYS_CHANNEL=loc-system-channel
 docker-compose -f docker-compose-e2e.yaml up
+
+
+> Setup env variables
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="IntelMSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/crypto-config/peerOrganizations/intel.loc.com/peers/peer0.intel.loc.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/intel.loc.com/users/Admin@intel.loc.com/msp
+export CORE_PEER_ADDRESS=peer0.intel.loc.com:7051
+
+> create channel
+peer channel create -o localhost:7050  --ordererTLSHostnameOverride orderer.loc.com -c loc-channel -f ./channel-artifacts/channel.tx --outputBlock ./channel-artifacts/channel1.block --tls --cafile ${PWD}/crypto-config/ordererOrganizations/loc.com/orderers/orderer.loc.com/msp/tlscacerts/tlsca.loc.com-cert.pem
+
+
+=====================================================================
+
+Installation docker on ec2 instance
+
+sudo apt-get update
+
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+sudo mkdir -p /etc/apt/keyrings
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+check version
+-> docker version
+If shown error use command shown on terminal to install docker
+
+
+sudo apt install golang-go
